@@ -1,0 +1,427 @@
+/* --- Card Layout --- */
+.events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 32px;
+    padding: 20px 0 40px 0;
+}
+
+.event-card {
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: 100%; /* Important for equal height in rows */
+}
+
+.event-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Header & Image --- */
+.event-card-image {
+    height: 130px;
+    background: #f8fafc;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.event-card-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* --- Content & Hierarchy --- */
+.event-card-content {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Allows this container to expand */
+}
+
+.event-card-content h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 12px;
+}
+
+.event-meta {
+    display: flex;
+    justify-content: space-between; /* Date left, Location right */
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.event-date {
+    font-size: 13px;
+    color: #718096;
+    font-weight: 500;
+}
+
+.event-location {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #718096;
+}
+
+.event-description {
+    font-size: 14px;
+    color: #4b5563; /* Muted gray */
+    line-height: 1.6;
+    margin-bottom: 20px;
+    
+    /* Clamp to 2 lines with ellipsis */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* --- Footer Alignment --- */
+.event-footer {
+    margin-top: auto; /* Pushes the entire footer to the bottom of the card */
+}
+
+.event-capacity {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #94a3b8;
+    margin-bottom: 10px;
+}
+
+/* --- Professional Button with Progress Bar --- */
+.register-btn {
+    position: relative; /* Base for absolute progress bar */
+    width: 100%;
+    padding: 14px;
+    background: #3182ce;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    overflow: hidden; /* Clips the bar to button corners */
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.register-btn:hover:not(:disabled) {
+    background: #2b6cb0;
+}
+
+.register-btn:active:not(:disabled) {
+    transform: scale(0.97); /* Scale animation on click */
+}
+
+.btn-text {
+    position: relative;
+    z-index: 2; /* Sits above the progress bar */
+}
+
+.btn-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 4px; /* Thin progress bar at top of button */
+    z-index: 1;
+    transition: width 0.5s ease;
+}
+
+.btn-progress.high { background: #48bb78; }    /* Green */
+.btn-progress.medium { background: #ecc94b; }  /* Yellow */
+.btn-progress.low { background: #f56565; }     /* Red */
+
+.register-btn.full {
+    background: #cbd5e1;
+    cursor: not-allowed;
+}
+
+/* --- Mobile Fix --- */
+@media (max-width: 600px) {
+    .events-grid { grid-template-columns: 1fr; }
+    .event-meta { flex-direction: column; align-items: flex-start; gap: 4px; }
+}
+
+.event-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.icon-btn {
+    background: #f3f4f6;
+    border: none;
+    padding: 6px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+    transform: scale(1.05);
+}
+
+.edit-btn {
+    color: #2563eb;
+}
+
+.edit-btn:hover {
+    background: #dbeafe;
+}
+
+.delete-btn {
+    color: #dc2626;
+}
+
+.delete-btn:hover {
+    background: #fee2e2;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   QR Modal
+────────────────────────────────────────────────────────────────── */
+.qr-modal {
+    max-width: 380px;
+    width: 90%;
+    padding: 32px 28px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+}
+
+.qr-close-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: #f1f5f9;
+    border: none;
+    border-radius: 8px;
+    padding: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.qr-close-btn:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.qr-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #1a202c;
+}
+.qr-modal-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+}
+.qr-modal-header svg {
+    color: #3182ce;
+}
+
+.qr-event-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #3182ce;
+    background: #eff6ff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    text-align: center;
+    margin: 0;
+}
+
+.qr-image-wrapper {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qr-image {
+    width: 220px;
+    height: 220px;
+    display: block;
+    border-radius: 4px;
+}
+
+.qr-instructions {
+    font-size: 13px;
+    color: #64748b;
+    text-align: center;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.download-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: #3182ce;
+    color: white;
+    border: none;
+    padding: 11px 22px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+    width: 100%;
+}
+.download-btn:hover  { background: #2b6cb0; }
+.download-btn:active { transform: scale(0.97); }
+
+/* Already-registered state for the register button */
+.register-btn.registered {
+    background: #10b981;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.register-btn.registered:hover {
+    background: #059669;
+}
+
+/* Events page header */
+.events-header {
+    margin-bottom: 8px;
+}
+.events-header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 4px;
+}
+.events-header p {
+    font-size: 14px;
+    color: #718096;
+}
+
+.events-status {
+    font-size: 13px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+    margin-bottom: 8px;
+}
+
+/* Modal overlay (shared) */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(3px);
+}
+
+.modal {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 28px;
+    width: 90%;
+    max-width: 480px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.16);
+}
+
+.modal h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 20px;
+}
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.modal-form input,
+.modal-form textarea {
+    padding: 10px 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #1a202c;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.modal-form input:focus,
+.modal-form textarea:focus {
+    border-color: #3182ce;
+}
+
+.modal-form textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.primary-btn {
+    flex: 1;
+    padding: 11px;
+    background: #3182ce;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.primary-btn:hover { background: #2b6cb0; }
+
+.secondary-btn {
+    flex: 1;
+    padding: 11px;
+    background: #f1f5f9;
+    color: #475569;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.secondary-btn:hover { background: #e2e8f0; }
