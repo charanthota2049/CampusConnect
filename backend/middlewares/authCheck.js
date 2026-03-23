@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 
-const jwt_secret = 'bigwhitepigisherebrodontpickthemsimplystupid'
+const jwt_secret = process.env.JWT_SECRET || 'bigwhitepigisherebrodontpickthemsimplystupid'
 export function authCheck(req,res,next){
     const token = req.cookies.jwt
     if(!token) return res.status(401).json({message:'Unauthorized access!'})

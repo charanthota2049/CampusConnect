@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import User from '../models/User.js'
-const jwt_secret = 'bigwhitepigisherebrodontpickthemsimplystupid'
+const jwt_secret = process.env.JWT_SECRET || 'bigwhitepigisherebrodontpickthemsimplystupid'
 
 export async function adminOnly(req,res,next){
     const token = req.cookies.jwt

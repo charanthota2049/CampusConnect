@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken'
-const jwt_secret = 'bigwhitepigisherebrodontpickthemsimplystupid'
+const jwt_secret = process.env.JWT_SECRET || 'bigwhitepigisherebrodontpickthemsimplystupid'
 
 export function organizerOrAdmin(req, res, next) {
     const token = req.cookies.jwt

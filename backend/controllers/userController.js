@@ -2,7 +2,7 @@ import User  from '../models/User.js'
 import jwt from 'jsonwebtoken';
 import bcrypt from "bcrypt";
 
-const jwt_secret = 'bigwhitepigisherebrodontpickthemsimplystupid'
+const jwt_secret = process.env.JWT_SECRET || 'bigwhitepigisherebrodontpickthemsimplystupid'
 const saltRounds = 10
 
 export async function getUsers(req,res){
