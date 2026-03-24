@@ -24,9 +24,6 @@ function Events() {
             month: 'long',
             day: 'numeric',
             year: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true,
         }).format(date);
     };
 
@@ -123,7 +120,27 @@ function Events() {
     };
 
     const handleEdit = (event) => {
-        setEditData({ ...event, date: event.date?.split('T')[0] });
+        let timeHour = '';
+        let timeMinute = '';
+        let timePeriod = '';
+
+        if (event.time) {
+            const [time, period] = event.time.split(' ');
+            const [hour, minute] = time.split(':');
+
+            timeHour = hour;
+            timeMinute = minute;
+            timePeriod = period;
+        }
+
+        setEditData({
+            ...event,
+            date: event.date?.split('T')[0],
+            timeHour,
+            timeMinute,
+            timePeriod
+        });
+
         setShowEditModal(true);
     };
     const handleEditChange = (e) => {
@@ -132,15 +149,17 @@ function Events() {
     };
     const handleEditSubmit = async (e) => {
         e.preventDefault();
+        const { timeHour, timeMinute, timePeriod, ...rest } = editData
+        const payload = { ...rest, time: `${timeHour}:${timeMinute}  ${timePeriod}` };
         try {
-            const res = await fetch(`http://localhost:3001/api/events/${editData._id}`, {
+            const res = await fetch(`http://localhost:3001/api/events/${payload._id}`, {
                 method: 'PUT',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(editData),
+                body: JSON.stringify(payload),
             });
             setShowEditModal(false);
-            if (res.ok) setEvents((prev) => prev.map((ev) => (ev._id === editData._id ? { ...editData } : ev)));
+            if (res.ok) setEvents((prev) => prev.map((ev) => (ev._id === editData._id ? { ...payload } : ev)));
         } catch (err) {
             console.error('Failed to update event', err);
         }
@@ -177,6 +196,28 @@ function Events() {
                             <input type="text" name="location" value={editData.location} onChange={handleEditChange} required />
                             <input type="date" name="date" value={editData.date} onChange={handleEditChange} required />
                             <input type="number" name="capacity" value={editData.capacity} onChange={handleEditChange} required />
+                            <div className="form-group">
+                                <label className="form-label" style={{ opacity: 0.7 }}>Event Time</label>
+                                <div className="time-input-group">
+                                    <select name="timeHour" value={editData.timeHour} onChange={handleEditChange}>
+                                        {Array.from({ length: 12 }, (_, i) => {
+                                            const h = String(i + 1).padStart(2, '0');
+                                            return <option key={h} value={h}>{h}</option>;
+                                        })}
+                                    </select>
+
+                                    <select name="timeMinute" value={editData.timeMinute} onChange={handleEditChange}>
+                                        {['00', '15', '30', '45'].map((m) => (
+                                            <option key={m} value={m}>{m}</option>
+                                        ))}
+                                    </select>
+
+                                    <select name="timePeriod" value={editData.timePeriod} onChange={handleEditChange}>
+                                        <option value="AM">AM</option>
+                                        <option value="PM">PM</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div className="modal-actions">
                                 <button type="submit" className="primary-btn">
                                     Update
@@ -228,7 +269,7 @@ function Events() {
                             <div className="event-card-content">
                                 <h3>{event.title}</h3>
                                 <div className="event-meta">
-                                    <span className="event-date">{formatDate(event.date)}</span>
+                                    <span className="event-date">{formatDate(event.date) + ' at ' + event.time}</span>
                                     <span className="event-location">{event.location}</span>
                                 </div>
                                 <p className="event-description">{event.description}</p>

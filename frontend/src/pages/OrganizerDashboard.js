@@ -61,7 +61,7 @@ function QRModal({ qrCode, title, onClose }) {
 function OrganizerDashboard() {
     const { user } = useContext(Context);
     const name = user?.name || 'Organizer';
-
+    const [deleteModal, setDeleteModal] = useState({ show: false, eventId: null });
     const [activeTab, setActiveTab] = useState('overview');
     const [myEvents, setMyEvents] = useState([]);
 
@@ -83,7 +83,15 @@ function OrganizerDashboard() {
         date: '',
         capacity: '',
         maxVolunteers: '',
+        timeHour:'',
+        timeMinute:'',
+        timePeriod:''
     });
+
+    function handleInputChange(e){
+        setEventForm((p) => ({...p, [e.target.name]: e.target.value,
+        }))
+    }
 
     const [qrModal, setQrModal] = useState(null);
 
@@ -113,23 +121,44 @@ function OrganizerDashboard() {
             date: '',
             capacity: '',
             maxVolunteers: '',
+            timeHour: '12',
+            timeMinute: '00',
+            timePeriod: 'AM',
         });
         setShowEventModal(true);
     }
-    function openEdit(ev) {
-        setEditingEvent(ev);
-        setEventForm({
-            title: ev.title,
-            description: ev.description || '',
-            location: ev.location,
-            date: ev.date?.split('T')[0] || '',
-            capacity: ev.capacity,
-            maxVolunteers: ev.maxVolunteers || '',
-        });
-        setShowEventModal(true);
+function openEdit(ev) {
+    let hour = '12', minute = '00', period = 'AM';
+
+    if (ev.time) {
+        const [h, rest] = ev.time.split(':');
+        const [m, p] = rest.split(' ');
+        hour = h;
+        minute = m;
+        period = p;
     }
+
+    setEditingEvent(ev);
+    setEventForm({
+        title: ev.title,
+        description: ev.description || '',
+        location: ev.location,
+        date: ev.date?.split('T')[0] || '',
+        capacity: ev.capacity,
+        maxVolunteers: ev.maxVolunteers || '',
+        timeHour: hour,
+        timeMinute: minute,
+        timePeriod: period,
+    });
+
+    setShowEventModal(true);
+}
     async function handleEventSubmit(e) {
         e.preventDefault();
+        const payload = {
+        ...eventForm,
+        time: `${eventForm.timeHour}:${eventForm.timeMinute} ${eventForm.timePeriod}`,
+    };
         const method = editingEvent ? 'PUT' : 'POST';
         const url = editingEvent ? `http://localhost:3001/api/events/${editingEvent._id}` : 'http://localhost:3001/api/events';
         try {
@@ -137,7 +166,7 @@ function OrganizerDashboard() {
                 method,
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(eventForm),
+                body: JSON.stringify(payload),
             });
             const data = await res.json();
             if (res.ok) {
@@ -149,18 +178,24 @@ function OrganizerDashboard() {
         }
         setShowEventModal(false);
     }
-    async function handleDeleteEvent(evId) {
-        if (!window.confirm('Delete this event and all its registrations?')) return;
-        try {
-            const res = await fetch(`http://localhost:3001/api/events/${evId}`, {
-                method: 'DELETE',
-                credentials: 'include',
-            });
-            if (res.ok) setMyEvents((prev) => prev.filter((e) => e._id !== evId));
-        } catch (err) {
-            console.error(err);
+async function handleDeleteEvent() {
+    const evId = deleteModal.eventId;
+
+    try {
+        const res = await fetch(`http://localhost:3001/api/events/${evId}`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+
+        if (res.ok) {
+            setMyEvents((prev) => prev.filter((e) => e._id !== evId));
         }
+    } catch (err) {
+        console.error(err);
     }
+
+    setDeleteModal({ show: false, eventId: null });
+}
 
     async function toggleRegistrations(evId) {
         if (regEventId === evId) {
@@ -185,6 +220,7 @@ function OrganizerDashboard() {
             setRegLoading(false);
         }
     }
+
 
     async function toggleVolunteers(evId) {
         if (volEventId === evId) {
@@ -228,12 +264,7 @@ function OrganizerDashboard() {
                     setMyEvents((prev) =>
                         prev.map((e) =>
                             e._id === evId
-                                ? {
-                                      ...e,
-                                      volunteersRemaining: (e.volunteersRemaining || 0) + 1,
-                                  }
-                                : e,
-                        ),
+                                ? {...e,volunteersRemaining: (e.volunteersRemaining || 0) + 1,}: e,),
                     );
                 }
             }
@@ -251,6 +282,28 @@ function OrganizerDashboard() {
 
     return (
         <div className="dashboard-page">
+
+            {deleteModal.show && (
+    <div className="modal-overlay">
+        <div className="modal delete-modal">
+            <h3>Delete Event</h3>
+            <p>Are you sure you want to delete this event and all its registrations?</p>
+
+            <div className="modal-actions">
+                <button className="delete-confirm-btn" onClick={handleDeleteEvent}>
+                    Yes, Delete
+                </button>
+
+                <button
+                    className="secondary-btn"
+                    onClick={() => setDeleteModal({ show: false, eventId: null })}
+                >
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+)}
             {qrModal && <QRModal qrCode={qrModal.qrCode} title={qrModal.title} onClose={() => setQrModal(null)} />}
 
             {showEventModal && (
@@ -263,48 +316,28 @@ function OrganizerDashboard() {
                                 name="title"
                                 placeholder="Event Title"
                                 value={eventForm.title}
-                                onChange={(e) =>
-                                    setEventForm((p) => ({
-                                        ...p,
-                                        title: e.target.value,
-                                    }))
-                                }
+                               onChange={(e) =>handleInputChange(e)}
                                 required
                             />
                             <textarea
                                 name="description"
                                 placeholder="Description"
                                 value={eventForm.description}
-                                onChange={(e) =>
-                                    setEventForm((p) => ({
-                                        ...p,
-                                        description: e.target.value,
-                                    }))
-                                }
+                               onChange={(e) =>handleInputChange(e)}
                             />
                             <input
                                 type="text"
                                 name="location"
                                 placeholder="Location"
                                 value={eventForm.location}
-                                onChange={(e) =>
-                                    setEventForm((p) => ({
-                                        ...p,
-                                        location: e.target.value,
-                                    }))
-                                }
+                                onChange={(e) =>handleInputChange(e)}
                                 required
                             />
                             <input
                                 type="date"
                                 name="date"
                                 value={eventForm.date}
-                                onChange={(e) =>
-                                    setEventForm((p) => ({
-                                        ...p,
-                                        date: e.target.value,
-                                    }))
-                                }
+                                onChange={(e) =>handleInputChange(e)}
                                 required
                             />
                             <input
@@ -312,12 +345,7 @@ function OrganizerDashboard() {
                                 name="capacity"
                                 placeholder="Attendee Capacity"
                                 value={eventForm.capacity}
-                                onChange={(e) =>
-                                    setEventForm((p) => ({
-                                        ...p,
-                                        capacity: e.target.value,
-                                    }))
-                                }
+                                onChange={(e) =>handleInputChange(e)}
                                 required
                             />
                             <input
@@ -325,13 +353,30 @@ function OrganizerDashboard() {
                                 name="maxVolunteers"
                                 placeholder="Volunteer Slots (0 = none)"
                                 value={eventForm.maxVolunteers}
-                                onChange={(e) =>
-                                    setEventForm((p) => ({
-                                        ...p,
-                                        maxVolunteers: e.target.value,
-                                    }))
-                                }
+                                onChange={(e) =>handleInputChange(e)}
                             />
+                            <div className="form-group">
+                                <label className="form-label" style={{opacity:0.7}}>Event Time</label>
+                                <div className="time-input-group">
+                                    <select name="timeHour" value={eventForm.timeHour} onChange={(e) =>handleInputChange(e)}>
+                                        {Array.from({ length: 12 }, (_, i) => {
+                                            const h = String(i + 1).padStart(2, '0');
+                                            return <option key={h} value={h}>{h}</option>;
+                                        })}
+                                    </select>
+
+                                    <select name="timeMinute" value={eventForm.timeMinute}onChange={(e) =>handleInputChange(e)}>
+                                        {['00', '15', '30', '45'].map((m) => (
+                                            <option key={m} value={m}>{m}</option>
+                                        ))}
+                                    </select>
+
+                                    <select name="timePeriod" value={eventForm.timePeriod}onChange={(e) =>handleInputChange(e)}>
+                                        <option value="AM">AM</option>
+                                        <option value="PM">PM</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div className="modal-actions">
                                 <button type="submit" className="primary-btn">
                                     {editingEvent ? 'Update' : 'Create'}
@@ -440,9 +485,13 @@ function OrganizerDashboard() {
                                             <button className="icon-btn edit-btn" onClick={() => openEdit(ev)} title="Edit">
                                                 <Pencil size={15} />
                                             </button>
-                                            <button className="icon-btn delete-btn" onClick={() => handleDeleteEvent(ev._id)} title="Delete">
-                                                <Trash2 size={15} />
-                                            </button>
+                                            <button
+    className="icon-btn delete-btn"
+    onClick={() => setDeleteModal({ show: true, eventId: ev._id })}
+    title="Delete"
+>
+    <Trash2 size={15} />
+</button>
                                         </div>
                                     </div>
                                 ))}

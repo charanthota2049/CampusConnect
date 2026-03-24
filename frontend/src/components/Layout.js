@@ -193,7 +193,7 @@ function Layout() {
                         <div className="header-actions">
                             <div className="notification-menu">
                                 <button type="button" className="notification-bell" onClick={handleToggleNotifications} aria-haspopup="true" aria-expanded={notifOpen}>
-                                    <Bell size={24} />
+                                    <Bell size={19} />
                                     {unreadCount > 0 && <span className="notification-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>}
                                 </button>
                                 {notifOpen && (

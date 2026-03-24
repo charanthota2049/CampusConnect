@@ -1,5 +1,4 @@
 import '../css/Register.css';
-import logo from '../assets/logo.png';
 import { Link, useNavigate } from 'react-router-dom';
 import hide from '../assets/hide.png';
 import view from '../assets/view.png';
@@ -63,12 +62,12 @@ function Register() {
 
     return (
         <div className="auth-page">
-            <h1>Sign Up</h1>
             <form id="signup-form" className="login" onSubmit={handleFormSubmit}>
-                <div className="app-logo">
+                {/* <div className="app-logo">
                     <img src={logo} alt="app-logo" />
                     <p>CampusConnect</p>
-                </div>
+                </div> */}
+                <h1>Sign Up</h1>
                 {success && <div className="validation-success">{success}</div>}
                 <div className="details">
                     <div className="input-group">

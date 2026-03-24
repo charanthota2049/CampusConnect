@@ -12,7 +12,7 @@ function canManageEvent(user, event) {
 
 export async function createEvent(req, res) {
     try {
-        const { title, description, date, location, capacity, maxVolunteers } = req.body
+        const { title, description, date, location, capacity, maxVolunteers,time } = req.body
         if (!title || !date || !location || !capacity) {
             return res.status(400).json({ message: "Required fields missing" })
         }
@@ -22,7 +22,8 @@ export async function createEvent(req, res) {
             seatsRemaining:Number(capacity),
             maxVolunteers:Number(maxVolunteers) || 0,
             volunteersRemaining: Number(maxVolunteers) || 0,
-            createdBy:req.user.id
+            createdBy:req.user.id,
+            time:time
         })
         res.status(201).json({ message: "Event created successfully", event })
     } catch (err) {

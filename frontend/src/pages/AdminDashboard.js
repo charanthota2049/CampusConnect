@@ -50,6 +50,9 @@ function AdminDashboard() {
         date: '',
         capacity: '',
         maxVolunteers: '',
+        timeHour: '12',
+        timeMinute: '00',
+        timePeriod: 'AM',
     });
 
     const [events, setEvents] = useState([]);
@@ -92,12 +95,14 @@ function AdminDashboard() {
     }
     async function handleEventSubmit(e) {
         e.preventDefault();
+        const { timeHour, timeMinute, timePeriod, ...rest } = eventData
+        const payload = { ...rest, time: `${timeHour}:${timeMinute}  ${timePeriod}` };
         try {
             const res = await fetch('http://localhost:3001/api/events', {
                 method: 'POST',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(eventData),
+                body: JSON.stringify(payload),
             });
             console.log(res);
             if (res.ok) {
@@ -117,6 +122,9 @@ function AdminDashboard() {
             date: '',
             capacity: '',
             maxVolunteers: '',
+            timeHour: '12',
+            timeMinute: '00',
+            timePeriod: 'AM',
         });
     }
 
@@ -163,14 +171,7 @@ function AdminDashboard() {
                 }));
                 if (newStatus === 'rejected') {
                     setEvents((prev) =>
-                        prev.map((e) =>
-                            e._id === eventId
-                                ? {
-                                      ...e,
-                                      volunteersRemaining: (e.volunteersRemaining || 0) + 1,
-                                  }
-                                : e,
-                        ),
+                        prev.map((e) => e._id === eventId ? { ...e, volunteersRemaining: (e.volunteersRemaining || 0) + 1, } : e,),
                     );
                 }
             }
@@ -216,6 +217,28 @@ function AdminDashboard() {
                             <input type="date" name="date" value={eventData.date} onChange={handleEventChange} required />
                             <input type="number" name="capacity" placeholder="Attendee Capacity" value={eventData.capacity} onChange={handleEventChange} required />
                             <input type="number" name="maxVolunteers" placeholder="Volunteer Slots (0 = none)" value={eventData.maxVolunteers} onChange={handleEventChange} />
+                            <div className="form-group">
+                                <label className="form-label" style={{opacity:0.7}}>Event Time</label>
+                                <div className="time-input-group">
+                                    <select name="timeHour" value={eventData.timeHour} onChange={handleEventChange}>
+                                        {Array.from({ length: 12 }, (_, i) => {
+                                            const h = String(i + 1).padStart(2, '0');
+                                            return <option key={h} value={h}>{h}</option>;
+                                        })}
+                                    </select>
+
+                                    <select name="timeMinute" value={eventData.timeMinute} onChange={handleEventChange}>
+                                        {['00', '15', '30', '45'].map((m) => (
+                                            <option key={m} value={m}>{m}</option>
+                                        ))}
+                                    </select>
+
+                                    <select name="timePeriod" value={eventData.timePeriod} onChange={handleEventChange}>
+                                        <option value="AM">AM</option>
+                                        <option value="PM">PM</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div className="modal-actions">
                                 <button type="submit" className="primary-btn">
                                     Save
