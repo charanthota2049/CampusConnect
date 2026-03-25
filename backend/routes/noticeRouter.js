@@ -1,7 +1,6 @@
 import express from "express";
 import {
-  getNotice,
-  createNotice,
+  getNotice, createNotice,
   deleteNotice,
   updateNotice,
 } from "../controllers/noticeController.js";
